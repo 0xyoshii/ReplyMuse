@@ -57,10 +57,11 @@ class TwitterClient:
             
 
                 if len(data) > 0:
-                    logging.info(" Found mentions - " + str(len(data)))
                     try:
+                        logging.info(" Found mentions - " + str(len(data)))
                         data.reverse()
                     except:
+                        logging.info(" Found mention")
                         pass
                     for value in data:
                         self.since_id = value["id_str"]
