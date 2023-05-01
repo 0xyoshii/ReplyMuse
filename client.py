@@ -70,7 +70,7 @@ class TwitterClient:
                             data = s.json()["data"]["threaded_conversation_with_injections_v2"]["instructions"][0]["entries"][len(s.json()["data"]["threaded_conversation_with_injections_v2"]["instructions"][0]["entries"]) - 2]["content"]["itemContent"]["tweet_results"]["result"]["legacy"]["full_text"]
                             self.tweet(" ".join([word for word in data.split() if not word.startswith('@')]), value["id_str"])
                         else:
-                            self.tweet(value["text"].replace("@ReplyMuse ", ""), value["id_str"])
+                            self.tweet(re.sub(r'@\w+\s?', '', value["text"]), value["id_str"])
                 else:
                     logging.debug(" No new mentions found, retrying")
                     time.sleep(self.delay)

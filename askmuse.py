@@ -35,7 +35,7 @@ class AskMuse:
                     if matchCsrf:
                         return matchCsrf.group(1)
                     else:
-                        logging.error("Conversation token not found, player name detected")
+                        logging.error("Error getting CSRF")
                         return
                 elif r.status_code == 422:
                     logging.error("Data not found")
@@ -44,7 +44,7 @@ class AskMuse:
                     logging.error("Error getting request, retrying - status code " + f"[{r.status_code}]")
                     return
             except Exception as e:
-                logging.error("Error getting ConversationToken, retrying - " + e)
+                logging.error("Error getting CSRF, retrying - " + e)
                 return
             
 
