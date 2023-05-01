@@ -26,7 +26,7 @@ class AskMuse:
     def getTokens(self):
         while True:
             try:
-                #print(self.uri + '/' + self.question)
+                print(self.uri + '/' + self.question)
                 r = self.session.get(self.uri + '/' + self.question, headers=self.headers)
                 if r.status_code == 200:
                     text = r.text
@@ -54,7 +54,8 @@ class AskMuse:
         except: 
             return
 
-        data = f"question%5Bquery%5D={self.question.replace('+', ' ')}&question%5Bpreferred_domain%5D=&question%5Bconversation_token%5D={self.conversation_token}&_csrf_token={self.csrf}"
+        #data = f"question%5Bquery%5D={self.question.replace('+', ' ')}&question%5Bpreferred_domain%5D=&question%5Bconversation_token%5D={self.conversation_token}&_csrf_token={self.csrf}"
+        data = f"question%5Bquery%5D={self.question.replace('+', ' ')}&question%5Bpreferred_domain%5D=&question%5Bconversation_token%5D=&_csrf_token={self.csrf}"
 
         while True:
             try:         
