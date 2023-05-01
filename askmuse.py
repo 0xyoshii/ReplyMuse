@@ -30,10 +30,10 @@ class AskMuse:
                 r = self.session.get(self.uri + '/' + self.question, headers=self.headers)
                 if r.status_code == 200:
                     text = r.text
-                    matchConv = re.search(r'conversation-token="([^"]+)"', text)
+                    #matchConv = re.search(r'conversation-token="([^"]+)"', text)
                     matchCsrf = re.search(r'csrf-token="([^"]+)"', text)
-                    if matchConv and matchCsrf:
-                        return matchConv.group(1), matchCsrf.group(1)
+                    if matchCsrf:
+                        return matchCsrf.group(1)
                     else:
                         logging.error("Conversation token not found, player name detected")
                         return
@@ -50,7 +50,7 @@ class AskMuse:
 
     def ask(self):
         try:
-            self.conversation_token, self.csrf = self.getTokens()
+            self.csrf = self.getTokens()
         except: 
             return
 
