@@ -36,7 +36,7 @@ class TwitterClient:
         }
         self.createUri = "https://twitter.com/i/api/graphql/1RyAhNwby-gzGCRVsMxKbQ/CreateTweet"
         self.mentionsUri = "https://api.twitter.com/1.1/statuses/mentions_timeline.json?count=10&since_id="
-        self.delay = 5
+        self.delay = 8
 
         pass
 
@@ -54,7 +54,6 @@ class TwitterClient:
                 #print(self.since_id)
                 r = requests.get(self.mentionsUri + self.since_id, headers=self.headers)
                 data = r.json()
-            
 
                 if len(data) > 0:
                     try:
@@ -64,13 +63,21 @@ class TwitterClient:
                         logging.info(" Found mention")
                         pass
                     for value in data:
-                        self.since_id = value["id_str"]
-                        if value["text"].replace(" ", "") == "@ReplyMuse":
-                            s = requests.get(f'https://twitter.com/i/api/graphql/BbCrSoXIR7z93lLCVFlQ2Q/TweetDetail?variables=%7B%22focalTweetId%22%3A%22{value["in_reply_to_status_id_str"]}%22%2C%22referrer%22%3A%22tweet%22%2C%22with_rux_injections%22%3Afalse%2C%22includePromotedContent%22%3Atrue%2C%22withCommunity%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withBirdwatchNotes%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22blue_business_profile_image_shape_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D', headers=self.headers)
-                            data = s.json()["data"]["threaded_conversation_with_injections_v2"]["instructions"][0]["entries"][len(s.json()["data"]["threaded_conversation_with_injections_v2"]["instructions"][0]["entries"]) - 2]["content"]["itemContent"]["tweet_results"]["result"]["legacy"]["full_text"]
-                            self.tweet(" ".join([word for word in data.split() if not word.startswith('@')]), value["id_str"])
+                        if value["in_reply_to_status_id"] != None:
+                            self.since_id = value["id_str"]
+                            if value["text"].replace(" ", "") == "@ReplyMuse":
+                                s = requests.get(f'https://twitter.com/i/api/graphql/BbCrSoXIR7z93lLCVFlQ2Q/TweetDetail?variables=%7B%22focalTweetId%22%3A%22{value["in_reply_to_status_id_str"]}%22%2C%22referrer%22%3A%22tweet%22%2C%22with_rux_injections%22%3Afalse%2C%22includePromotedContent%22%3Atrue%2C%22withCommunity%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withBirdwatchNotes%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22blue_business_profile_image_shape_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D', headers=self.headers)
+                                data = s.json()["data"]["threaded_conversation_with_injections_v2"]["instructions"][0]["entries"][len(s.json()["data"]["threaded_conversation_with_injections_v2"]["instructions"][0]["entries"]) - 2]["content"]["itemContent"]["tweet_results"]["result"]["legacy"]["full_text"]
+                                self.tweet(" ".join([word for word in data.split() if not word.startswith('@')]), value["id_str"])
+                            else:
+                                if value["text"].count('@ReplyMuse') > 1:
+                                    self.tweet(re.sub(r'@\w+\s?', '', value["text"]), value["id_str"])
+                                else:
+                                    #print("Reply not a mention")
+                                    pass
                         else:
                             self.tweet(re.sub(r'@\w+\s?', '', value["text"]), value["id_str"])
+                            pass
                 else:
                     logging.debug(" No new mentions found, retrying")
                     time.sleep(self.delay)
